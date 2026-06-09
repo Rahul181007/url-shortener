@@ -1,0 +1,59 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { CreateShortUrlUseCase } from '../../application/interface/create-short-url.use-case';
+import { AccessTokenGuard } from '../../../auth/presentation/guard/access-token.guard';
+import { CreateShortUrlDto } from '../../application/dto/create-short-url.dto';
+import type { AuthenticatedRequest } from '../../../auth/presentation/types/authenticated-request';
+import { CreateShortUrlResponseDto } from '../dto/create-short-url-response.dto';
+import { CreateShortUrlRequestDto } from '../dto/create-short-url-request.dto';
+import { GetUserUrlUseCase } from '../../application/interface/get-user-urls.use-case';
+import { GetUserUrlsResponseDto } from '../dto/get-user-urls-response.dto';
+import { DeleteUrlUseCase } from '../../application/interface/deleteUrl.usecase';
+
+@Controller('urls')
+export class UrlsController {
+  constructor(
+    private readonly createShortCodeUrlUseCase: CreateShortUrlUseCase,
+    private readonly getUserUrlsUseCase: GetUserUrlUseCase,
+    private readonly deleteUrlUseCase: DeleteUrlUseCase,
+  ) {}
+
+  @Post()
+  @UseGuards(AccessTokenGuard)
+  async createUrl(
+    @Body() request: CreateShortUrlRequestDto,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<CreateShortUrlResponseDto> {
+    const dto = new CreateShortUrlDto();
+    dto.originalUrl = request.originalUrl;
+    dto.userId = req.user.userId;
+    const url = await this.createShortCodeUrlUseCase.execute(dto);
+    return CreateShortUrlResponseDto.fromEntity(url);
+  }
+
+  @Get()
+  @UseGuards(AccessTokenGuard)
+  async getUserUrls(
+    @Req() request: AuthenticatedRequest,
+  ): Promise<GetUserUrlsResponseDto[]> {
+    const urls = await this.getUserUrlsUseCase.execute(request.user.userId);
+    return urls.map((url) => GetUserUrlsResponseDto.fromEntity(url));
+  }
+
+  @Delete(':id')
+  @UseGuards(AccessTokenGuard)
+  async deleteUrl(
+    @Param('id') id: string,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<void> {
+    await this.deleteUrlUseCase.execute(id, request.user.userId);
+  }
+}
