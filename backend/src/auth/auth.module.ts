@@ -9,6 +9,8 @@ import { LoginUseCaseImpl } from './application/usecase/login.use-case.impl';
 import { RefreshTokenUseCase } from './application/interface/refresh-token.use-case';
 import { RefreshTokenUseCaseImpl } from './application/usecase/refreshTokenUseCaseImpl';
 import { AccessTokenGuard } from './presentation/guard/access-token.guard';
+import { GetCurrentUserUseCase } from './application/interface/get-current-user.use-case';
+import { GetCurrentUserUseCaseImpl } from './application/usecase/get-current-user.use-case.impl';
 
 @Module({
   imports: [UsersModule, JwtModule],
@@ -25,6 +27,10 @@ import { AccessTokenGuard } from './presentation/guard/access-token.guard';
     {
       provide: RefreshTokenUseCase,
       useClass: RefreshTokenUseCaseImpl,
+    },
+    {
+      provide: GetCurrentUserUseCase,
+      useClass: GetCurrentUserUseCaseImpl,
     },
     AccessTokenGuard,
   ],

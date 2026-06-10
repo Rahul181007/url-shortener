@@ -19,14 +19,14 @@ export class LoginUseCaseImpl extends LoginUseCase {
   async execute(loginData: LoginDto): Promise<LoginResponse> {
     const user = await this.userRepository.findByEmail(loginData.email);
     if (!user) {
-      throw new AppError('User not found', 404);
+      throw new AppError('Invalid email or password', 401);
     }
     const isPassword = await this.passwordHasher.compare(
       loginData.password,
       user.password,
     );
     if (!isPassword) {
-      throw new AppError('Invalid credentials', 401);
+      throw new AppError('Invalid email or password', 401);
     }
     const payload = { userId: user.id! };
     const accessToken = await this.tokenGenerator.generateAccessToken(payload);

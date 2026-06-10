@@ -18,10 +18,11 @@ import { LoginDto } from '../../application/dto/login.dto';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { RefreshTokenUseCase } from '../../application/interface/refresh-token.use-case';
-import { RefreshTokenResponseDto } from '../dto/refresh-token-response.dto';
 import { AppError } from '../../../shared/error/app-error';
 import { AccessTokenGuard } from '../guard/access-token.guard';
 import type { AuthenticatedRequest } from '../types/authenticated-request';
+import { GetCurrentUserUseCase } from '../../application/interface/get-current-user.use-case';
+import { CurrentUserResponseDto } from '../dto/current-user-response.dto';
 
 @Controller('auth') //auth is prefix of route
 export class AuthController {
@@ -30,6 +31,7 @@ export class AuthController {
     private readonly loginUseCase: LoginUseCase,
     private readonly configService: ConfigService,
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
+    private readonly getCurrentUserUseCase: GetCurrentUserUseCase,
   ) {}
 
   @Post('register') //route will be /auth/register
@@ -55,7 +57,12 @@ export class AuthController {
     loginDto.password = request.password;
 
     const result = await this.loginUseCase.execute(loginDto);
-
+    response.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+    });
     response.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === 'production',
@@ -67,17 +74,29 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refresh(@Req() request: Request): Promise<RefreshTokenResponseDto> {
+  async refresh(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ message: string }> {
     const refreshToken = request.cookies?.refreshToken as string | undefined;
     if (!refreshToken) {
       throw new AppError('Refresh token is missing', 401);
     }
     const result = await this.refreshTokenUseCase.execute(refreshToken);
-    return RefreshTokenResponseDto.fromApplication(result);
+    response.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+    });
+    return {
+      message: 'Token refreshed  successfully',
+    };
   }
 
   @Post('logout')
   logout(@Res({ passthrough: true }) response: Response): { message: string } {
+    response.clearCookie('accessToken');
     response.clearCookie('refreshToken');
     return {
       message: 'Logged out successfully',
@@ -86,9 +105,10 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AccessTokenGuard)
-  getMe(@Req() request: AuthenticatedRequest) {
-    return {
-      userId: request.user.userId,
-    };
+  async getMe(
+    @Req() request: AuthenticatedRequest,
+  ): Promise<CurrentUserResponseDto> {
+    const user = await this.getCurrentUserUseCase.execute(request.user.userId);
+    return CurrentUserResponseDto.fromEntity(user);
   }
 }
