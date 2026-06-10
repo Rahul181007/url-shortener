@@ -60,13 +60,13 @@ export class AuthController {
     response.cookie('accessToken', result.accessToken, {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === 'production',
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 15 * 60 * 1000,
     });
     response.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === 'production',
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -86,7 +86,7 @@ export class AuthController {
     response.cookie('accessToken', result.accessToken, {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === 'production',
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 15 * 60 * 1000,
     });
     return {
@@ -96,8 +96,15 @@ export class AuthController {
 
   @Post('logout')
   logout(@Res({ passthrough: true }) response: Response): { message: string } {
-    response.clearCookie('accessToken');
-    response.clearCookie('refreshToken');
+    response.clearCookie('accessToken', {
+      secure: true,
+      sameSite: 'none',
+    });
+
+    response.clearCookie('refreshToken', {
+      secure: true,
+      sameSite: 'none',
+    });
     return {
       message: 'Logged out successfully',
     };
