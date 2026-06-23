@@ -6,11 +6,11 @@ import { AppError } from '../../../shared/error/app-error';
 
 @Injectable()
 export class GetCurrentUserUseCaseImpl extends GetCurrentUserUseCase {
-  constructor(private readonly userRepository: UserRepository) {
+  constructor(private readonly _userRepository: UserRepository) {
     super();
   }
   async execute(userId: string): Promise<UserEntity> {
-    const user = await this.userRepository.findById(userId);
+    const user = await this._userRepository.findById(userId);
     if (!user) {
       throw new AppError('user not found', 404);
     }

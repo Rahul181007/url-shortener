@@ -27,11 +27,11 @@ import { CurrentUserResponseDto } from '../dto/current-user-response.dto';
 @Controller('auth') //auth is prefix of route
 export class AuthController {
   constructor(
-    private readonly createUserUseCase: CreateUserUseCase,
-    private readonly loginUseCase: LoginUseCase,
-    private readonly configService: ConfigService,
-    private readonly refreshTokenUseCase: RefreshTokenUseCase,
-    private readonly getCurrentUserUseCase: GetCurrentUserUseCase,
+    private readonly _createUserUseCase: CreateUserUseCase,
+    private readonly _loginUseCase: LoginUseCase,
+    private readonly _configService: ConfigService,
+    private readonly _refreshTokenUseCase: RefreshTokenUseCase,
+    private readonly _getCurrentUserUseCase: GetCurrentUserUseCase,
   ) {}
 
   @Post('register') //route will be /auth/register
@@ -42,7 +42,7 @@ export class AuthController {
     createUserDto.name = request.name;
     createUserDto.email = request.email;
     createUserDto.password = request.password;
-    const user = await this.createUserUseCase.execute(createUserDto);
+    const user = await this._createUserUseCase.execute(createUserDto);
     return RegisterResponseDto.fromEntity(user);
   }
 
@@ -56,16 +56,16 @@ export class AuthController {
     loginDto.email = request.email;
     loginDto.password = request.password;
 
-    const result = await this.loginUseCase.execute(loginDto);
+    const result = await this._loginUseCase.execute(loginDto);
     response.cookie('accessToken', result.accessToken, {
       httpOnly: true,
-      secure: this.configService.get('NODE_ENV') === 'production',
+      secure: this._configService.get('NODE_ENV') === 'production',
       sameSite: 'none',
       maxAge: 15 * 60 * 1000,
     });
     response.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
-      secure: this.configService.get('NODE_ENV') === 'production',
+      secure: this._configService.get('NODE_ENV') === 'production',
       sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -82,10 +82,10 @@ export class AuthController {
     if (!refreshToken) {
       throw new AppError('Refresh token is missing', 401);
     }
-    const result = await this.refreshTokenUseCase.execute(refreshToken);
+    const result = await this._refreshTokenUseCase.execute(refreshToken);
     response.cookie('accessToken', result.accessToken, {
       httpOnly: true,
-      secure: this.configService.get('NODE_ENV') === 'production',
+      secure: this._configService.get('NODE_ENV') === 'production',
       sameSite: 'none',
       maxAge: 15 * 60 * 1000,
     });
@@ -115,7 +115,7 @@ export class AuthController {
   async getMe(
     @Req() request: AuthenticatedRequest,
   ): Promise<CurrentUserResponseDto> {
-    const user = await this.getCurrentUserUseCase.execute(request.user.userId);
+    const user = await this._getCurrentUserUseCase.execute(request.user.userId);
     return CurrentUserResponseDto.fromEntity(user);
   }
 }

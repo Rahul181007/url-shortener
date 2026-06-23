@@ -5,11 +5,11 @@ import { UrlEntity } from '../../domain/entity/url.entity';
 
 @Injectable()
 export class GetUserUrlsUseCaseImpl extends GetUserUrlUseCase {
-  constructor(private readonly urlRepository: UrlRepository) {
+  constructor(private readonly _urlRepository: UrlRepository) {
     super();
   }
   async execute(userId: string): Promise<UrlEntity[]> {
-    const urls = await this.urlRepository.findByUserId(userId);
+    const urls = await this._urlRepository.findByUserId(userId);
     return urls;
   }
 }

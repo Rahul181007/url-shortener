@@ -9,23 +9,23 @@ import { AppError } from '../../../shared/error/app-error';
 @Injectable()
 export class CreateUserUseCaseImpl extends CreateUserUseCase {
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly passwordHasher: PasswordHasher,
+    private readonly _userRepository: UserRepository,
+    private readonly _passwordHasher: PasswordHasher,
   ) {
     super();
   }
   async execute(userData: CreateUserDto): Promise<UserEntity> {
-    const existingUser = await this.userRepository.findByEmail(userData.email);
+    const existingUser = await this._userRepository.findByEmail(userData.email);
     if (existingUser) {
       throw new AppError('user already exist', 409);
     }
-    const hashedPassword = await this.passwordHasher.hash(userData.password);
+    const hashedPassword = await this._passwordHasher.hash(userData.password);
     const user = UserEntity.create({
       name: userData.name,
       email: userData.email,
       password: hashedPassword,
     });
-    const savedUser = await this.userRepository.create(user);
+    const savedUser = await this._userRepository.create(user);
     return savedUser;
   }
 }

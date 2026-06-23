@@ -8,19 +8,19 @@ import { AppError } from '../../../shared/error/app-error';
 @Injectable()
 export class RefreshTokenUseCaseImpl extends RefreshTokenUseCase {
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly tokenGenerator: TokenGenerator,
+    private readonly _userRepository: UserRepository,
+    private readonly _tokenGenerator: TokenGenerator,
   ) {
     super();
   }
 
   async execute(refreshToken: string): Promise<RefreshTokenResultDto> {
-    const payload = await this.tokenGenerator.verifyRefreshToken(refreshToken);
-    const user = await this.userRepository.findById(payload.userId);
+    const payload = await this._tokenGenerator.verifyRefreshToken(refreshToken);
+    const user = await this._userRepository.findById(payload.userId);
     if (!user) {
       throw new AppError('user not found', 404);
     }
-    const accessToken = await this.tokenGenerator.generateAccessToken({
+    const accessToken = await this._tokenGenerator.generateAccessToken({
       userId: user.id!,
     });
     return new RefreshTokenResultDto(accessToken);

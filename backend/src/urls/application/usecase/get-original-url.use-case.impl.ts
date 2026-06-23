@@ -5,11 +5,11 @@ import { AppError } from '../../../shared/error/app-error';
 
 @Injectable()
 export class GetOriginalUrlUseCaseImpl extends GetOriginalUrlUseCase {
-  constructor(private readonly urlRepository: UrlRepository) {
+  constructor(private readonly _urlRepository: UrlRepository) {
     super();
   }
   async execute(shortCode: string): Promise<string> {
-    const url = await this.urlRepository.findByShortCode(shortCode);
+    const url = await this._urlRepository.findByShortCode(shortCode);
     if (!url) {
       throw new AppError('Url not found', 404);
     }

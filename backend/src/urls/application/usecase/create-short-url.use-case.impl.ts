@@ -8,16 +8,16 @@ import { CreateShortUrlDto } from '../dto/create-short-url.dto';
 @Injectable()
 export class CreateShortUrlUseCaseImpl extends CreateShortUrlUseCase {
   constructor(
-    private readonly urlRepository: UrlRepository,
-    private readonly shortCodeGenerator: ShortCodeGenerator,
+    private readonly _urlRepository: UrlRepository,
+    private readonly _shortCodeGenerator: ShortCodeGenerator,
   ) {
     super();
   }
   async execute(data: CreateShortUrlDto): Promise<UrlEntity> {
     let shortCode = '';
     do {
-      shortCode = this.shortCodeGenerator.generate();
-    } while (await this.urlRepository.findByShortCode(shortCode));
+      shortCode = this._shortCodeGenerator.generate();
+    } while (await this._urlRepository.findByShortCode(shortCode));
 
     const url = UrlEntity.create({
       originalUrl: data.originalUrl,
@@ -25,6 +25,6 @@ export class CreateShortUrlUseCaseImpl extends CreateShortUrlUseCase {
       userId: data.userId,
     });
 
-    return this.urlRepository.create(url);
+    return this._urlRepository.create(url);
   }
 }

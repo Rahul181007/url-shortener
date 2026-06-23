@@ -4,13 +4,13 @@ import type { Response } from 'express';
 
 @Controller()
 export class RedirectController {
-  constructor(private readonly getOriginalUrlUseCase: GetOriginalUrlUseCase) {}
+  constructor(private readonly _getOriginalUrlUseCase: GetOriginalUrlUseCase) {}
   @Get(':shortCode')
   async redirect(
     @Param('shortCode') shortCode: string,
     @Res() response: Response,
   ) {
-    const originalUrl = await this.getOriginalUrlUseCase.execute(shortCode);
+    const originalUrl = await this._getOriginalUrlUseCase.execute(shortCode);
     return response.redirect(originalUrl);
   }
 }

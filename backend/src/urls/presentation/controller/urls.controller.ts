@@ -21,9 +21,9 @@ import { DeleteUrlUseCase } from '../../application/interface/deleteUrl.usecase'
 @Controller('urls')
 export class UrlsController {
   constructor(
-    private readonly createShortCodeUrlUseCase: CreateShortUrlUseCase,
-    private readonly getUserUrlsUseCase: GetUserUrlUseCase,
-    private readonly deleteUrlUseCase: DeleteUrlUseCase,
+    private readonly _createShortCodeUrlUseCase: CreateShortUrlUseCase,
+    private readonly _getUserUrlsUseCase: GetUserUrlUseCase,
+    private readonly _deleteUrlUseCase: DeleteUrlUseCase,
   ) {}
 
   @Post()
@@ -35,7 +35,7 @@ export class UrlsController {
     const dto = new CreateShortUrlDto();
     dto.originalUrl = request.originalUrl;
     dto.userId = req.user.userId;
-    const url = await this.createShortCodeUrlUseCase.execute(dto);
+    const url = await this._createShortCodeUrlUseCase.execute(dto);
     return CreateShortUrlResponseDto.fromEntity(url);
   }
 
@@ -44,7 +44,7 @@ export class UrlsController {
   async getUserUrls(
     @Req() request: AuthenticatedRequest,
   ): Promise<GetUserUrlsResponseDto[]> {
-    const urls = await this.getUserUrlsUseCase.execute(request.user.userId);
+    const urls = await this._getUserUrlsUseCase.execute(request.user.userId);
     return urls.map((url) => GetUserUrlsResponseDto.fromEntity(url));
   }
 
@@ -54,6 +54,6 @@ export class UrlsController {
     @Param('id') id: string,
     @Req() request: AuthenticatedRequest,
   ): Promise<void> {
-    await this.deleteUrlUseCase.execute(id, request.user.userId);
+    await this._deleteUrlUseCase.execute(id, request.user.userId);
   }
 }
