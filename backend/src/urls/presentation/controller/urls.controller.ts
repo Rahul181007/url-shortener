@@ -17,8 +17,9 @@ import { CreateShortUrlRequestDto } from '../dto/create-short-url-request.dto';
 import { GetUserUrlUseCase } from '../../application/interface/get-user-urls.use-case';
 import { GetUserUrlsResponseDto } from '../dto/get-user-urls-response.dto';
 import { DeleteUrlUseCase } from '../../application/interface/deleteUrl.usecase';
+import { ROUTES } from '../../../shared/constants/routes';
 
-@Controller('urls')
+@Controller(ROUTES.URLS.BASE)
 export class UrlsController {
   constructor(
     private readonly _createShortCodeUrlUseCase: CreateShortUrlUseCase,
@@ -26,7 +27,7 @@ export class UrlsController {
     private readonly _deleteUrlUseCase: DeleteUrlUseCase,
   ) {}
 
-  @Post()
+  @Post(ROUTES.URLS.CREATE)
   @UseGuards(AccessTokenGuard)
   async createUrl(
     @Body() request: CreateShortUrlRequestDto,
@@ -39,7 +40,7 @@ export class UrlsController {
     return CreateShortUrlResponseDto.fromEntity(url);
   }
 
-  @Get()
+  @Get(ROUTES.URLS.GET_ALL)
   @UseGuards(AccessTokenGuard)
   async getUserUrls(
     @Req() request: AuthenticatedRequest,
@@ -48,7 +49,7 @@ export class UrlsController {
     return urls.map((url) => GetUserUrlsResponseDto.fromEntity(url));
   }
 
-  @Delete(':id')
+  @Delete(ROUTES.URLS.DELETE)
   @UseGuards(AccessTokenGuard)
   async deleteUrl(
     @Param('id') id: string,

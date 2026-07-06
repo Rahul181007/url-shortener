@@ -23,8 +23,9 @@ import { AccessTokenGuard } from '../guard/access-token.guard';
 import type { AuthenticatedRequest } from '../types/authenticated-request';
 import { GetCurrentUserUseCase } from '../../application/interface/get-current-user.use-case';
 import { CurrentUserResponseDto } from '../dto/current-user-response.dto';
+import { ROUTES } from '../../../shared/constants/routes';
 
-@Controller('auth') //auth is prefix of route
+@Controller(ROUTES.AUTH.BASE) //auth is prefix of route
 export class AuthController {
   constructor(
     private readonly _createUserUseCase: CreateUserUseCase,
@@ -34,7 +35,7 @@ export class AuthController {
     private readonly _getCurrentUserUseCase: GetCurrentUserUseCase,
   ) {}
 
-  @Post('register') //route will be /auth/register
+  @Post(ROUTES.AUTH.REGISTER) //route will be /auth/register
   async register(
     @Body() request: RegisterRequestDto,
   ): Promise<RegisterResponseDto> {
@@ -46,7 +47,7 @@ export class AuthController {
     return RegisterResponseDto.fromEntity(user);
   }
 
-  @Post('login')
+  @Post(ROUTES.AUTH.LOGIN)
   async login(
     @Body() request: LoginRequestDto,
     @Res({ passthrough: true }) response: Response,
@@ -73,7 +74,7 @@ export class AuthController {
     return LoginResponseDto.fromApplication(result);
   }
 
-  @Post('refresh')
+  @Post(ROUTES.AUTH.REFRESH)
   async refresh(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
@@ -94,7 +95,7 @@ export class AuthController {
     };
   }
 
-  @Post('logout')
+  @Post(ROUTES.AUTH.LOGOUT)
   logout(@Res({ passthrough: true }) response: Response): { message: string } {
     response.clearCookie('accessToken', {
       secure: true,
@@ -110,7 +111,7 @@ export class AuthController {
     };
   }
 
-  @Get('me')
+  @Get(ROUTES.AUTH.ME)
   @UseGuards(AccessTokenGuard)
   async getMe(
     @Req() request: AuthenticatedRequest,
