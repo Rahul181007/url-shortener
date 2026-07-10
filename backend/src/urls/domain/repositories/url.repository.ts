@@ -6,4 +6,8 @@ export abstract class UrlRepository {
   abstract findByShortCode(shortCode: string): Promise<UrlEntity | null>;
   abstract findByUserId(userId: string): Promise<UrlEntity[]>;
   abstract delete(id: string): Promise<void>;
+  abstract findByOriginalUrlAndUser(
+    originalUrl: string,
+    userId: string,
+  ): Promise<UrlEntity | null>;
 }

@@ -43,4 +43,15 @@ export class MongoUrlRepository extends UrlRepository {
     if (!url) return null;
     return UrlMapper.toEntity(url);
   }
+  async findByOriginalUrlAndUser(
+    originalUrl: string,
+    userId: string,
+  ): Promise<UrlEntity | null> {
+    const url = await this.urlModel.findOne({
+      originalUrl,
+      userId: new Types.ObjectId(userId),
+    });
+    if (!url) return null;
+    return UrlMapper.toEntity(url);
+  }
 }

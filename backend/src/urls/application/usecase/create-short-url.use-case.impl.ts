@@ -14,6 +14,11 @@ export class CreateShortUrlUseCaseImpl extends CreateShortUrlUseCase {
     super();
   }
   async execute(data: CreateShortUrlDto): Promise<UrlEntity> {
+    const existingUrl = await this._urlRepository.findByOriginalUrlAndUser(
+      data.originalUrl,
+      data.userId,
+    );
+    if (existingUrl) return existingUrl;
     let shortCode = '';
     do {
       shortCode = this._shortCodeGenerator.generate();
