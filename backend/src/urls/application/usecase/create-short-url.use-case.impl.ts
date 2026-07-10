@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateShortUrlUseCase } from '../interface/create-short-url.use-case';
 import { UrlRepository } from '../../domain/repositories/url.repository';
 import { ShortCodeGenerator } from '../../domain/service/short-code-generator';
@@ -18,7 +18,9 @@ export class CreateShortUrlUseCaseImpl extends CreateShortUrlUseCase {
       data.originalUrl,
       data.userId,
     );
-    if (existingUrl) return existingUrl;
+    if (existingUrl) {
+      throw new ConflictException('This URL has already been shortened.');
+    }
     let shortCode = '';
     do {
       shortCode = this._shortCodeGenerator.generate();

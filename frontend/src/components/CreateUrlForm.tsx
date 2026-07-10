@@ -4,6 +4,7 @@ import { createUrlSchema, type CreateUrlFormData } from "../schema/url.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createUrl } from "../service/urlApi";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 type CreateUrlFormProps = {
   onUrlCreated: () => void;
@@ -28,9 +29,15 @@ const CreateUrlForm = ({onUrlCreated}:CreateUrlFormProps) => {
             toast.success("short Url created successfully");
             onUrlCreated()
             reset();
-        } catch {
-            toast.error("Failed to create URL");
-        } finally {
+        }catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+        toast.error(
+            error.response?.data?.message || "Failed to create URL"
+        );
+    } else {
+        toast.error("Something went wrong");
+    }
+} finally {
             setIsLoading(false)
         }
     }
