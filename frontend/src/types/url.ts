@@ -3,3 +3,10 @@ export interface Url {
   originalUrl: string;
   shortCode: string;
 }
+export interface PaginatedUrls {
+  urls: Url[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}

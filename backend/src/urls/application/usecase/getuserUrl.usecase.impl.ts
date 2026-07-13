@@ -8,8 +8,11 @@ export class GetUserUrlsUseCaseImpl extends GetUserUrlUseCase {
   constructor(private readonly _urlRepository: UrlRepository) {
     super();
   }
-  async execute(userId: string): Promise<UrlEntity[]> {
-    const urls = await this._urlRepository.findByUserId(userId);
-    return urls;
+  async execute(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{ urls: UrlEntity[]; total: number }> {
+    return await this._urlRepository.findByUserId(userId, page, limit);
   }
 }

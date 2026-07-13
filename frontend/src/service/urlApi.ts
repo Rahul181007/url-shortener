@@ -1,5 +1,5 @@
 
-import type { Url } from "../types/url";
+import type { PaginatedUrls, Url } from "../types/url";
 import { api } from "./api";
 
 export const createUrl=async(originalUrl:string):Promise<Url>=>{
@@ -9,8 +9,13 @@ export const createUrl=async(originalUrl:string):Promise<Url>=>{
     return response.data
 }
 
-export const getUrls=async():Promise<Url[]>=>{
-    const response=await api.get("/urls");
+export const getUrls=async(page:number=1,limit:number=10):Promise<PaginatedUrls>=>{
+    const response=await api.get("/urls", {
+  params: {
+    page,
+    limit,
+  },
+});
     return response.data
 }
 

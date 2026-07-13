@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { GetUserUrlUseCase } from '../../application/interface/get-user-urls.use
 import { GetUserUrlsResponseDto } from '../dto/get-user-urls-response.dto';
 import { DeleteUrlUseCase } from '../../application/interface/deleteUrl.usecase';
 import { ROUTES } from '../../../shared/constants/routes';
+import { GetUserUrlsPaginatedResponseDto } from '../dto/get-user-urls-paginated-response.dto';
 
 @Controller(ROUTES.URLS.BASE)
 export class UrlsController {
@@ -44,9 +46,21 @@ export class UrlsController {
   @UseGuards(AccessTokenGuard)
   async getUserUrls(
     @Req() request: AuthenticatedRequest,
-  ): Promise<GetUserUrlsResponseDto[]> {
-    const urls = await this._getUserUrlsUseCase.execute(request.user.userId);
-    return urls.map((url) => GetUserUrlsResponseDto.fromEntity(url));
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<GetUserUrlsPaginatedResponseDto> {
+    const result = await this._getUserUrlsUseCase.execute(
+      request.user.userId,
+      Number(page),
+      Number(limit),
+    );
+    return {
+      urls: result.urls.map((url) => GetUserUrlsResponseDto.fromEntity(url)),
+      page: Number(page),
+      limit: Number(limit),
+      total: result.total,
+      totalPages: Math.ceil(result.total / limit),
+    };
   }
 
   @Delete(ROUTES.URLS.DELETE)

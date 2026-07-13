@@ -27,12 +27,29 @@ export class MongoUrlRepository extends UrlRepository {
     if (!url) return null;
     return UrlMapper.toEntity(url);
   }
-  async findByUserId(userId: string): Promise<UrlEntity[]> {
-    const urls = await this.urlModel.find({
+  async findByUserId(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{
+    urls: UrlEntity[];
+    total: number;
+  }> {
+    const urls = await this.urlModel
+      .find({
+        userId: new Types.ObjectId(userId),
+      })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const total = await this.urlModel.countDocuments({
       userId: new Types.ObjectId(userId),
     });
 
-    return urls.map((url) => UrlMapper.toEntity(url));
+    return {
+      urls: urls.map((url) => UrlMapper.toEntity(url)),
+      total,
+    };
   }
   async delete(id: string): Promise<void> {
     await this.urlModel.findByIdAndDelete(id);
